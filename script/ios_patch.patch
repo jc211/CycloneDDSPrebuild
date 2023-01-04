@@ -1,0 +1,37 @@
+diff --git a/src/core/xtests/CMakeLists.txt b/src/core/xtests/CMakeLists.txt
+index 5f2ffd29..fc3e575b 100644
+--- a/src/core/xtests/CMakeLists.txt
++++ b/src/core/xtests/CMakeLists.txt
+@@ -15,4 +15,6 @@ if(BUILD_TESTING AND BUILD_IDLC)
+     add_subdirectory(initsampledeliv)
+ endif()
+ 
+-add_subdirectory(symbol_export)
++if(NOT CMAKE_SYSTEM_NAME MATCHES "iOS") 
++    add_subdirectory(symbol_export)
++endif()
+diff --git a/src/ddsrt/src/ifaddrs/posix/ifaddrs.c b/src/ddsrt/src/ifaddrs/posix/ifaddrs.c
+index 2afbdc7b..caa50316 100644
+--- a/src/ddsrt/src/ifaddrs/posix/ifaddrs.c
++++ b/src/ddsrt/src/ifaddrs/posix/ifaddrs.c
+@@ -19,6 +19,10 @@
+ #include "dds/ddsrt/retcode.h"
+ #include "dds/ddsrt/string.h"
+ 
++#if __APPLE__
++  #include <TargetConditionals.h>
++#endif
++
+ extern const int *const os_supp_afs;
+ 
+ #if defined __linux
+@@ -79,7 +83,8 @@ static enum ddsrt_iftype guess_iftype (const struct ifaddrs *sys_ifa)
+   fclose (fp);
+   return type;
+ }
+-#elif defined(__APPLE__) || defined(__QNXNTO__) || defined(__FreeBSD__)  /* probably works for all BSDs */
++#elif (defined(__APPLE__) && !TARGET_OS_IPHONE) || defined(__QNXNTO__) || defined(__FreeBSD__)  /* probably works for all BSDs */
++
+ #include <sys/ioctl.h>
+ #include <sys/sockio.h>
+ #include <net/if.h>
